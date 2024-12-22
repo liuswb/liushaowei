@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>项目历史 - 日常工作辅助系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>项目记录</h1>
+            <div class="header-actions">
+                <button onclick="exportProjectRecord()" class="export-btn">
+                    <i class="fas fa-download"></i> 导出项目记录
+                </button>
+                <a href="{{ url_for('index') }}" class="back-btn">返回主页</a>
+            </div>
+        </div>
+        
+        {% if project %}
+        <div class="project-info">
+            <h2>项目信息</h2>
+            <div class="project-details">
+                <div class="info-group">
+                    <!-- 第一行信息 -->
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>项目ID：</label>
+                            <span class="info-text" onclick="makeEditable(this, 'id', 'number')">{{ project.id }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>客户名称：</label>
+                            <span class="info-text" onclick="makeEditable(this, 'client_name', 'text')">{{ project.client_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>当前环节：</label>
+                            <span class="info-text" onclick="makeEditable(this, 'stage', 'select')">{{ project.stage }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>当前状态：</label>
+                            <span class="info-text" onclick="makeEditable(this, 'status', 'text')">{{ project.status }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 第二行信息 -->
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>项目区域：</label>
+                            <span class="info-text" onclick="makeEditable(this, 'area', 'text')">{{ project.area }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>项目经理：</label>
+                            <span class="info-text" onclick="makeEditable(this, 'manager', 'text')">{{ project.manager }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>联系电话：</label>
+                            <span class="info-text" onclick="makeEditable(this, 'manager_phone', 'text')">{{ project.manager_phone }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 设备信息表 -->
+        <div class="device-config-section">
+            <h4 class="device-config-title">设备信息</h4>
+            <div class="device-tables">
+                <!-- 分流设备表格 -->
+                <div class="device-table">
+                    <div class="device-header">
+                        <h5>分流设备</h5>
+                        <button onclick="addDevice('分流设备')" class="add-btn">添加</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>设备名称</th>
+                                <th>设备型号</th>
+                                <th>万兆光卡</th>
+                                <th>千兆光卡</th>
+                                <th>电口卡</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in devices %}
+                            {% if device.type == '分流设备' %}
+                            <tr data-id="{{ device.id }}">
+                                <td><input type="text" class="device-input" value="{{ device.name }}" data-field="name"></td>
+                                <td><input type="text" class="device-input" value="{{ device.model }}" data-field="model"></td>
+                                <td><input type="number" class="device-input" value="{{ device.cards.mec_10g }}" data-field="mec_10g"></td>
+                                <td><input type="number" class="device-input" value="{{ device.cards.ge_optical }}" data-field="ge_optical"></td>
+                                <td><input type="number" class="device-input" value="{{ device.cards.electrical }}" data-field="electrical"></td>
+                                <td>
+                                    <div class="device-actions">
+                                        <button onclick="saveDevice(this)" class="save-btn">保存</button>
+                                        <button onclick="deleteDevice(this)" class="delete-btn">删除</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 其他设备表格 -->
+                {% for device_type in ['光旁路保护设备', '数通设备', '电源设备'] %}
+                <div class="device-table">
+                    <div class="device-header">
+                        <h5>{{ device_type }}</h5>
+                        <button onclick="addDevice('{{ device_type }}')" class="add-btn">添加</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>设备名称</th>
+                                <th>设备型号</th>
+                                <th>业务板卡数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in devices %}
+                            {% if device.type == device_type %}
+                            <tr data-id="{{ device.id }}">
+                                <td><input type="text" class="device-input" value="{{ device.name }}" data-field="name"></td>
+                                <td><input type="text" class="device-input" value="{{ device.model }}" data-field="model"></td>
+                                <td><input type="number" class="device-input" value="{{ device.card_quantity }}" data-field="card_quantity"></td>
+                                <td>
+                                    <div class="device-actions">
+                                        <button onclick="saveDevice(this)" class="save-btn">保存</button>
+                                        <button onclick="deleteDevice(this)" class="delete-btn">删除</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>记录列表</h2>
+            <div class="history-list">
+                {% if history %}
+                    {% for record in history %}
+                    <div class="history-item" data-record-id="{{ record[0] }}">
+                        <div class="history-header">
+                            <span class="time">{{ record[3]|datetime }}</span>
+                            <span class="type type-{{ record[2] }}">{{ record[2] }}</span>
+                            <div class="record-actions">
+                                <button class="edit-record-btn" onclick="editRecord('{{ record[0] }}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="delete-record-btn" onclick="deleteRecord('{{ record[0] }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="history-content">
+                            <p class="history-description" contenteditable="false">{{ record[6] }}</p>
+                            {% if record[4] or record[5] %}
+                            <div class="value-change">
+                                {% if record[4] %}
+                                <p>更新前：<span class="old-value">{{ record[4] }}</span></p>
+                                {% endif %}
+                                {% if record[5] %}
+                                <p>更新后：<span class="new-value">{{ record[5] }}</span></p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-records">
+                        <p>暂无记录</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加 JavaScript -->
+    <script>
+    const projectId = '{{ project.id }}';
+    
+    function autoSaveDevice(input) {
+        const deviceId = input.dataset.id;
+        const field = input.dataset.field;
+        const value = input.value.trim();
+        const deviceType = input.closest('.device-table').querySelector('h5').textContent.trim();
+        
+        if (!deviceId) {
+            // 如果是新添加的设备，调用添加设备的方法
+            saveNewDevice(input);
+            return;
+        }
+
+        const data = {
+            type: deviceType,
+            [field]: value
+        };
+
+        // 如果是分流设备，需要特���处理板卡信息
+        if (deviceType === '分流设备' && (field === 'mec_10g' || field === 'ge_optical' || field === 'electrical')) {
+            data.card_type = field;
+            data.card_quantity = value;
+        }
+
+        fetch(`/update_device/${deviceId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 保存成功后刷新页面
+                location.reload();
+            } else {
+                alert('保存失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请重试');
+        });
+    }
+
+    function addDeviceRow(btn, deviceType) {
+        const table = btn.closest('.device-table').querySelector('table tbody');
+        const newRow = document.createElement('tr');
+        
+        // 创建新行
+        if (deviceType === '分流设备') {
+            newRow.innerHTML = `
+                <td><input type="text" class="device-input" placeholder="设备名称" data-field="name"></td>
+                <td><input type="text" class="device-input" placeholder="设备型号" data-field="model"></td>
+                <td><input type="text" class="device-input" placeholder="数量" data-field="mec_10g"></td>
+                <td><input type="text" class="device-input" placeholder="数量" data-field="ge_optical"></td>
+                <td><input type="text" class="device-input" placeholder="数量" data-field="electrical"></td>
+                <td><button onclick="deleteRow(this)">删除</button></td>
+            `;
+        } else {
+            newRow.innerHTML = `
+                <td><input type="text" class="device-input" placeholder="设��名称" data-field="name"></td>
+                <td><input type="text" class="device-input" placeholder="设备型号" data-field="model"></td>
+                <td><input type="text" class="device-input" placeholder="数量" data-field="card_quantity"></td>
+                <td><button onclick="deleteRow(this)">删除</button></td>
+            `;
+        }
+        
+        // 为所有输入框添加自动保存事件
+        newRow.querySelectorAll('.device-input').forEach(input => {
+            input.addEventListener('change', () => autoSaveDevice(input));
+        });
+        
+        table.appendChild(newRow);
+    }
+
+    function saveNewDevice(input) {
+        const row = input.closest('tr');
+        const deviceType = row.closest('.device-table').querySelector('h5').textContent.trim();
+        
+        // 收集所有输入值
+        let deviceData = {
+            type: deviceType,
+            name: row.cells[0].querySelector('input').value.trim(),
+            model: row.cells[1].querySelector('input').value.trim()
+        };
+
+        if (deviceType === '分流设备') {
+            deviceData.cards = {
+                mec_10g: row.cells[2].querySelector('input').value.trim() || '0',
+                ge_optical: row.cells[3].querySelector('input').value.trim() || '0',
+                electrical: row.cells[4].querySelector('input').value.trim() || '0'
+            };
+        } else {
+            deviceData.card_quantity = row.cells[2].querySelector('input').value.trim() || '0';
+        }
+
+        // 验证必填字段
+        if (!deviceData.name || !deviceData.model) {
+            alert('请填写设备名称和型号');
+            return;
+        }
+
+        fetch(`/add_device/${projectId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(deviceData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 保存成功后刷新页面
+                location.reload();
+            } else {
+                alert('保存失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请重试');
+        });
+    }
+
+    function deleteRow(btn) {
+        const row = btn.closest('tr');
+        const deviceId = row.querySelector('.device-input').dataset.id;
+        
+        if (!deviceId) {
+            // 如果是新添加的未保存行，直接删除
+            row.remove();
+            return;
+        }
+        
+        if (confirm('确定要删除这条设备信息吗？此操作不可恢复。')) {
+            fetch(`/delete_device/${deviceId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();  // 删除成功后刷新页面
+                } else {
+                    alert('删除失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除失败，请重试');
+            });
+        }
+    }
+
+    function toggleEdit(btn, field) {
+        const infoItem = btn.closest('.info-item');
+        const textSpan = infoItem.querySelector('.info-text');
+        const editContainer = infoItem.querySelector('.edit-container');
+        const input = editContainer.querySelector('.info-input');
+        
+        // 隐藏所有其他打开编辑容器
+        document.querySelectorAll('.edit-container').forEach(container => {
+            if (container !== editContainer && container.style.display === 'flex') {
+                const item = container.closest('.info-item');
+                item.querySelector('.info-text').style.display = '';
+                item.querySelector('.edit-info-btn').style.display = '';
+                container.style.display = 'none';
+            }
+        });
+
+        if (editContainer.style.display !== 'flex') {
+            // 显示编辑界面
+            textSpan.style.display = 'none';
+            btn.style.display = 'none';
+            editContainer.style.display = 'flex';
+            input.value = textSpan.textContent.trim();
+            input.focus();
+        }
+    }
+
+    function saveProjectInfo(btn, field) {
+        const input = btn.previousElementSibling;
+        const newValue = input.value.trim();
+        const infoItem = btn.closest('.info-item');
+        const textSpan = infoItem.querySelector('.info-text');
+        const editBtn = infoItem.querySelector('.edit-info-btn');
+        const editContainer = infoItem.querySelector('.edit-container');
+        
+        if (!newValue) {
+            alert('请输入有效的信息');
+            return;
+        }
+        
+        fetch(`/update_project_info/${projectId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                field: field,
+                value: newValue
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 更新显示的文本
+                textSpan.textContent = newValue;
+                // 隐藏编辑界面
+                textSpan.style.display = '';
+                editBtn.style.display = '';
+                editContainer.style.display = 'none';
+                
+                // 如果是修改项目ID，需要刷新页面
+                if (field === 'id') {
+                    window.location.href = `/project_history?project_id=${newValue}`;
+                }
+            } else {
+                alert('保存失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请重试');
+        });
+    }
+
+    // 点击其他地方关闭编辑界面
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.info-item')) {
+            document.querySelectorAll('.edit-container').forEach(container => {
+                if (container.style.display === 'flex') {
+                    const infoItem = container.closest('.info-item');
+                    const textSpan = infoItem.querySelector('.info-text');
+                    const editBtn = infoItem.querySelector('.edit-info-btn');
+                    
+                    textSpan.style.display = '';
+                    editBtn.style.display = '';
+                    container.style.display = 'none';
+                }
+            });
+        }
+    });
+
+    // 添加输入监听以示/隐保存按钮
+    document.querySelectorAll('.info-input').forEach(input => {
+        input.addEventListener('input', function() {
+            const saveBtn = this.nextElementSibling;
+            saveBtn.style.visibility = 'visible';
+            saveBtn.style.opacity = '1';
+        });
+    });
+
+    function editRecord(recordId) {
+        const record = document.querySelector(`.history-item[data-record-id="${recordId}"]`);
+        const description = record.querySelector('.history-description');
+        const valueChange = record.querySelector('.value-change');
+        const actions = record.querySelector('.record-actions');
+        
+        // 保存原始内容
+        description.dataset.originalContent = description.textContent;
+        if (valueChange) {
+            const oldValue = valueChange.querySelector('.old-value');
+            const newValue = valueChange.querySelector('.new-value');
+            if (oldValue) oldValue.dataset.originalContent = oldValue.textContent;
+            if (newValue) newValue.dataset.originalContent = newValue.textContent;
+            
+            // 使更新前后的值可编辑
+            if (oldValue) oldValue.contentEditable = 'true';
+            if (newValue) newValue.contentEditable = 'true';
+        }
+        
+        // 进入编辑状态
+        description.contentEditable = true;
+        description.focus();
+        
+        // 修改编辑按钮为确认按钮
+        const editBtn = actions.querySelector('.edit-record-btn');
+        editBtn.innerHTML = '<i class="fas fa-check"></i>';
+        editBtn.onclick = () => saveRecord(recordId);
+        editBtn.title = '确认';
+    }
+
+    function saveRecord(recordId) {
+        const record = document.querySelector(`.history-item[data-record-id="${recordId}"]`);
+        const description = record.querySelector('.history-description');
+        const valueChange = record.querySelector('.value-change');
+        const actions = record.querySelector('.record-actions');
+        
+        let data = {
+            description: description.textContent.trim()
+        };
+        
+        // 如果有更新前后的值，也保存它们
+        if (valueChange) {
+            const oldValue = valueChange.querySelector('.old-value');
+            const newValue = valueChange.querySelector('.new-value');
+            if (oldValue) data.old_value = oldValue.textContent.trim();
+            if (newValue) data.new_value = newValue.textContent.trim();
+        }
+        
+        console.log('Saving record:', data);
+        
+        fetch(`/update_record/${recordId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Save response:', data);
+            if (data.success) {
+                // 退出编辑状态
+                description.contentEditable = false;
+                if (valueChange) {
+                    const oldValue = valueChange.querySelector('.old-value');
+                    const newValue = valueChange.querySelector('.new-value');
+                    if (oldValue) oldValue.contentEditable = false;
+                    if (newValue) newValue.contentEditable = false;
+                    // 更新显示的更新前后的值
+                    if (oldValue) oldValue.textContent = data.old_value || oldValue.textContent;
+                    if (newValue) newValue.textContent = data.new_value || newValue.textContent;
+                }
+                // 恢复编辑按钮
+                const editBtn = actions.querySelector('.edit-record-btn');
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.onclick = () => {
+                    // 移除之前的事件监听器
+                    editBtn.onclick = null;
+                    // 添加新的事���监听器
+                    editRecord(recordId);
+                };
+                editBtn.title = '编辑';
+                // 保存成功后更新显示的内容
+                description.textContent = data.description;
+            } else {
+                alert('保存失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请重试');
+        });
+    }
+
+    function cancelEdit(recordId) {
+        const record = document.querySelector(`.history-item[data-record-id="${recordId}"]`);
+        const description = record.querySelector('.history-description');
+        const valueChange = record.querySelector('.value-change');
+        const actions = record.querySelector('.record-actions');
+        const saveActions = record.querySelector('.edit-save-actions');
+        
+        // 恢复原始内容
+        description.textContent = description.dataset.originalContent;
+        if (valueChange) {
+            const oldValue = valueChange.querySelector('.old-value');
+            const newValue = valueChange.querySelector('.new-value');
+            if (oldValue) {
+                oldValue.textContent = oldValue.dataset.originalContent;
+                oldValue.contentEditable = false;
+            }
+            if (newValue) {
+                newValue.textContent = newValue.dataset.originalContent;
+                newValue.contentEditable = false;
+            }
+        }
+        
+        // 退出编辑状态
+        description.contentEditable = false;
+        actions.style.display = 'flex';
+        if (saveActions) saveActions.remove();
+    }
+
+    function deleteRecord(recordId) {
+        if (confirm('确定要删除这条记录吗？此操作不可恢复。')) {
+            fetch(`/delete_record/${recordId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const record = document.querySelector(`.history-item[data-record-id="${recordId}"]`);
+                    record.remove();
+                } else {
+                    alert('删除失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除失败，请重试');
+            });
+        }
+    }
+
+    function exportProjectRecord() {
+        window.location.href = `/export_project_record/${projectId}`;
+    }
+
+    function saveEdit(element, field, newValue) {
+        // 保存原值用于失败时恢复
+        const originalValue = element.dataset.originalValue;
+        
+        if (!newValue.trim()) {
+            alert('请输入有效的信息');
+            return;
+        }
+        
+        fetch(`/update_project_info/${projectId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                field: field,
+                value: newValue
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 更新显示的文本
+                element.textContent = newValue;
+                
+                // 如果是修改项目ID，需要刷新页面
+                if (field === 'id') {
+                    window.location.href = `/project_history?project_id=${newValue}`;
+                }
+            } else {
+                alert('保存失败，请重试');
+                element.textContent = originalValue;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请重试');
+            element.textContent = originalValue;
+        });
+    }
+
+    function makeEditable(element, field, type) {
+        // 如果已经在编辑状态，则返回
+        if (element.querySelector('input, select')) return;
+        
+        // 保存原始值
+        element.dataset.originalValue = element.textContent.trim();
+        
+        const currentValue = element.textContent;
+        let input;
+        
+        if (type === 'select' && field === 'stage') {
+            input = document.createElement('select');
+            const stages = [
+                "当前方案支撑", "现场察", "客户沟通", "IP规划及方案确认",
+                "设备安装", "设备调测", "业务联", "验收", "项目结款",
+                "尾款结算", "日常维护", "故障处理"
+            ];
+            
+            stages.forEach(stage => {
+                const option = document.createElement('option');
+                option.value = stage;
+                option.textContent = stage;
+                if (stage === currentValue.trim()) option.selected = true;
+                input.appendChild(option);
+            });
+        } else {
+            input = document.createElement('input');
+            input.type = type;
+            input.value = currentValue.trim();
+        }
+        
+        input.className = 'edit-input';
+        
+        // ��建编辑容器
+        const editContainer = document.createElement('div');
+        editContainer.className = 'edit-container';
+        editContainer.style.display = 'flex';
+        editContainer.style.alignItems = 'center';
+        editContainer.style.gap = '5px';
+        
+        // 添加输入框到容器
+        editContainer.appendChild(input);
+        
+        // 创建保存按钮
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '保存';
+        saveBtn.className = 'save-btn';
+        saveBtn.onclick = () => saveEdit(element, field, input.value);
+        editContainer.appendChild(saveBtn);
+        
+        // 创建取消按钮
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '取消';
+        cancelBtn.className = 'cancel-btn';
+        cancelBtn.onclick = () => cancelEdit(element, element.dataset.originalValue);
+        editContainer.appendChild(cancelBtn);
+        
+        // 清空原内容并添加编辑容器
+        element.textContent = '';
+        element.appendChild(editContainer);
+        
+        // 聚焦输入框
+        input.focus();
+    }
+
+    function cancelEdit(element, originalValue) {
+        if (originalValue) {
+            element.textContent = originalValue;
+        }
+    }
+
+    function saveDeviceField(btn, deviceId, field) {
+        const input = btn.previousElementSibling;
+        const value = input.value.trim();
+        const row = btn.closest('tr');
+        const deviceType = row.closest('.device-table').querySelector('h5').textContent.trim();
+        
+        if (!value && (field === 'name' || field === 'model')) {
+            alert('请填写设备名称和型号');
+            return;
+        }
+
+        const data = {
+            type: deviceType,
+            [field]: value
+        };
+
+        // 如果是分流设备，需要特殊处理板卡信息
+        if (deviceType === '分流设备' && (field === 'mec_10g' || field === 'ge_optical' || field === 'electrical')) {
+            data.card_type = field;
+            data.card_quantity = value;
+        }
+
+        fetch(`/update_device/${deviceId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                input.classList.remove('edited');
+                btn.style.display = 'none';
+                alert('保存成功');
+            } else {
+                alert('保存失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请重试');
+        });
+    }
+
+    // 添加输入监听件
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.device-input').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.add('edited');
+            });
+
+            input.addEventListener('focus', function() {
+                const saveBtn = this.nextElementSibling;
+                if (saveBtn) saveBtn.style.display = 'inline-block';
+            });
+
+            input.addEventListener('blur', function() {
+                const saveBtn = this.nextElementSibling;
+                if (saveBtn && !this.classList.contains('edited')) {
+                    saveBtn.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // 添加设备
+    function addDevice(deviceType) {
+        // 修改选择器的写法
+        const deviceTable = Array.from(document.querySelectorAll('.device-table')).find(
+            table => table.querySelector('h5').textContent.trim() === deviceType
+        );
+        if (!deviceTable) {
+            console.error('找不到对应的设备表格:', deviceType);
+            return;
+        }
+        
+        const tbody = deviceTable.querySelector('table tbody');
+        const row = document.createElement('tr');
+        
+        if (deviceType === '分流设备') {
+            row.innerHTML = `
+                <td><input type="text" class="device-input" data-field="name" placeholder="设备名称"></td>
+                <td><input type="text" class="device-input" data-field="model" placeholder="设备型号"></td>
+                <td><input type="number" class="device-input" data-field="mec_10g" value="0" min="0"></td>
+                <td><input type="number" class="device-input" data-field="ge_optical" value="0" min="0"></td>
+                <td><input type="number" class="device-input" data-field="electrical" value="0" min="0"></td>
+                <td>
+                    <div class="device-actions">
+                        <button onclick="saveDevice(this)" class="save-btn">保存</button>
+                        <button onclick="deleteDevice(this)" class="delete-btn">删除</button>
+                    </div>
+                </td>
+            `;
+        } else {
+            row.innerHTML = `
+                <td><input type="text" class="device-input" data-field="name" placeholder="设备名称"></td>
+                <td><input type="text" class="device-input" data-field="model" placeholder="设备型号"></td>
+                <td><input type="number" class="device-input" data-field="card_quantity" value="0" min="0"></td>
+                <td>
+                    <div class="device-actions">
+                        <button onclick="saveDevice(this)" class="save-btn">保存</button>
+                        <button onclick="deleteDevice(this)" class="delete-btn">删除</button>
+                    </div>
+                </td>
+            `;
+        }
+        
+        tbody.appendChild(row);
+    }
+
+    // 保存设备信
+    function saveDevice(btn) {
+        const row = btn.closest('tr');
+        const deviceId = row.dataset.id;
+        const deviceType = row.closest('.device-table').querySelector('h5').textContent.trim();
+        const inputs = row.querySelectorAll('.device-input');
+        
+        let data = {
+            type: deviceType,
+            name: '',
+            model: ''
+        };
+        
+        inputs.forEach(input => {
+            const field = input.dataset.field;
+            if (field === 'name' || field === 'model') {
+                data[field] = input.value.trim();
+            } else if (deviceType === '分流设备') {
+                if (!data.cards) data.cards = {};
+                data.cards[field] = parseInt(input.value) || 0;
+            } else {
+                data.card_quantity = parseInt(input.value) || 0;
+            }
+        });
+        
+        // 验证必填字段
+        if (!data.name || !data.model) {
+            alert('请填写设备名称和型号');
+            return;
+        }
+        
+        const url = deviceId ? 
+            `/update_device/${deviceId}` : 
+            `/add_device/${projectId}`;
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('保存失败，请重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('保存失败，请重试');
+        });
+    }
+
+    // 删除设备
+    function deleteDevice(btn) {
+        const row = btn.closest('tr');
+        const deviceId = row.dataset.id;
+        
+        if (!deviceId) {
+            row.remove();
+            return;
+        }
+        
+        if (confirm('确定要删除这条设备信息吗？此操作不可恢复。')) {
+            fetch(`/delete_device/${deviceId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    row.remove();
+                } else {
+                    alert('删除失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除失败，请重试');
+            });
+        }
+    }
+
+    // 添加样
+    document.head.insertAdjacentHTML('beforeend', `
+    <style>
+    .device-config-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .device-config-title {
+        margin: 0 0 20px;
+        color: #333;
+        font-size: 18px;
+    }
+
+    .device-tables {
+        display: grid;
+        gap: 20px;
+    }
+
+    .device-table {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+    }
+
+    .device-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .device-header h5 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 16px;
+    }
+
+    .add-btn {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .add-btn:hover {
+        background: #45a049;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 4px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+    }
+
+    .device-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .device-input:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    .save-btn, .delete-btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+
+    .save-btn {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .delete-btn {
+        background: #f44336;
+        color: white;
+    }
+
+    .save-btn:hover {
+        background: #45a049;
+    }
+
+    .delete-btn:hover {
+        background: #da190b;
+    }
+
+    /* 添加新的样式 */
+    .device-actions {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    tr:hover .device-actions {
+        opacity: 1;
+    }
+
+    /* 修改输入框样式 */
+    .device-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+    .device-input:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    .device-input.edited {
+        border-color: #4CAF50;
+    }
+
+    /* 记录列表的编辑保存按钮样式 */
+    .edit-save-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+        padding-right: 15px;
+    }
+
+    .edit-save-actions button {
+        padding: 6px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .edit-save-actions .save-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .edit-save-actions .cancel-btn {
+        background-color: #666;
+        color: white;
+    }
+
+    .edit-save-actions .save-btn:hover {
+        background-color: #45a049;
+    }
+
+    .edit-save-actions .cancel-btn:hover {
+        background-color: #555;
+    }
+
+    .history-description {
+        padding: 10px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+    .history-description[contenteditable="true"] {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        outline: none;
+    }
+
+    .value-change span[contenteditable="true"] {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 2px 5px;
+        outline: none;
+    }
+
+    .edit-save-actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .edit-save-actions button {
+        padding: 6px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .edit-save-actions .save-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .edit-save-actions .cancel-btn {
+        background-color: #666;
+        color: white;
+    }
+
+    .edit-save-actions .save-btn:hover {
+        background-color: #45a049;
+    }
+
+    .edit-save-actions .cancel-btn:hover {
+        background-color: #555;
+    }
+
+    .history-description[contenteditable="true"] {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 4px;
+        min-height: 50px;
+    }
+
+    .history-description[contenteditable="true"]:focus {
+        border-color: #4CAF50;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    }
+
+    .edit-record-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.3s ease;
+    }
+
+    .edit-record-btn:hover {
+        color: #4CAF50;
+    }
+    </style>
+    `);
+    </script>
+
+    <!-- 确认对话框 -->
+    <div id="confirmDialog" class="confirm-dialog">
+        <div class="confirm-dialog-content">
+            <div class="warning-icon">
+                <i>⚠</i>
+            </div>
+            <h3>确认删除</h3>
+            <p>您确要删除这行设备信息吗？<br>此操作不可恢复。</p>
+            <div class="confirm-dialog-buttons">
+                <button onclick="confirmDelete(false)" class="cancel-btn" autofocus>取消</button>
+                <button onclick="confirmDelete(true)" class="confirm-btn">确定删除</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .input-group {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        position: relative;
+    }
+
+    .input-group .device-input {
+        flex: 1;
+        padding-right: 60px; /* 为隐藏的保存按钮留出空间 */
+    }
+
+    .input-group .save-btn {
+        position: absolute;
+        right: 0;
+        padding: 4px 8px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        display: none; /* 默认隐藏 */
+    }
+
+    .input-group .device-input:focus + .save-btn,
+    .input-group .device-input.edited + .save-btn {
+        display: inline-block; /* 入框获得焦点或内容改变时显示 */
+    }
+
+    .input-group .save-btn:hover {
+        background-color: #45a049;
+    }
+
+    .device-input {
+        width: 100%;
+        padding: 4px;
+        border: 1px solid #ddd;
+    }
+
+    .device-table button {
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 10px 0;
+    }
+
+    .header-section h1 {
+        margin: 0;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .export-btn, .back-btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .export-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .back-btn {
+        background-color: #666;
+        color: white;
+    }
+
+    .export-btn:hover {
+        background-color: #45a049;
+    }
+
+    .back-btn:hover {
+        background-color: #555;
+    }
+
+    .export-btn i {
+        font-size: 16px;
+    }
+    </style>
+</body>
+</html> 

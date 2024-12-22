@@ -1,0 +1,2459 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.module {
+    background-color: white;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.module-title {
+    background-color: #4CAF50;
+    color: white;
+    margin: 0;
+    padding: 15px 20px;
+}
+
+.section {
+    padding: 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+h3 {
+    color: #666;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, textarea, select {
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.alert {
+    padding: 10px;
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    color: #3c763d;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.projects, .tasks {
+    display: grid;
+    gap: 10px;
+}
+
+.project, .task {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+}
+
+.complete-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.complete-btn:hover {
+    background-color: #218838;
+}
+
+/* 项目管理模块特定样式 */
+.project-module .module-title {
+    background-color: #2196F3;
+}
+
+/* 工作管理模块特定样式 */
+.task-module .module-title {
+    background-color: #FF5722;
+}
+
+.modules-container {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.project-module {
+    flex: 2;  /* 占据2/3宽度 */
+}
+
+.task-module {
+    flex: 1;  /* 占据1/3宽度 */
+}
+
+/* 在小屏幕上改为垂直排列 */
+@media (max-width: 1024px) {
+    .modules-container {
+        flex-direction: column;
+    }
+    
+    .project-module,
+    .task-module {
+        width: 100%;
+    }
+}
+
+/* 调整其他样式以适应新布局 */
+.module {
+    height: fit-content;
+    min-width: 0;  /* 防止flex子项溢 */
+}
+
+.projects, .tasks {
+    min-width: 0;  /* 防止内容溢出 */
+}
+
+.project, .task {
+    flex-wrap: wrap;  /* 在空间不足时允许内容换行 */
+    gap: 8px;
+}
+
+.project span, .task span {
+    margin-right: 10px;
+}
+
+.project-header {
+    background-color: #f0f0f0;
+    padding: 12px 10px;
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: 0.3fr 0.8fr 1fr 2fr 0.8fr 0.8fr 0.6fr;
+    gap: 8px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.project {
+    display: grid;
+    grid-template-columns: 0.3fr 0.8fr 1fr 2fr 0.8fr 0.8fr 0.6fr;
+    gap: 8px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    align-items: center;
+    min-height: 60px;
+}
+
+.project-actions {
+    display: flex;
+    gap: 5px;
+    min-width: 150px;
+}
+
+.state-select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+    width: 100%;
+    height: 36px;
+}
+
+.state-select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.state-select option {
+    padding: 4px;
+}
+
+/* 不同状态的颜色标识 */
+.state-active {
+    color: #28a745;
+}
+
+.state-maintenance {
+    color: #ffc107;
+}
+
+.state-expired {
+    color: #dc3545;
+}
+
+/* 添加历史记录按钮样式 */
+.history-search {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px;
+}
+
+.history-btn {
+    background-color: #2196F3;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.history-btn:hover {
+    background-color: #1976D2;
+}
+
+.history-link {
+    padding: 5px 10px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.history-link:hover {
+    background-color: #1976D2;
+}
+
+/* 历史记录页面样式 */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.history-item {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+.history-content {
+    margin-top: 10px;
+}
+
+.history-content p {
+    margin: 5px 0;
+}
+
+.time {
+    color: #666;
+}
+
+.type {
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.type-create { background-color: #4CAF50; color: white; }
+.type-update { background-color: #2196F3; color: white; }
+.type-maintenance { background-color: #FF9800; color: white; }
+.type-issue { background-color: #f44336; color: white; }
+
+.id-link {
+    color: #2196F3;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.id-link:hover {
+    text-decoration: underline;
+    color: #1976D2;
+}
+
+/* 移除不需要的样式 */
+.history-search,
+.history-btn,
+.history-link {
+    display: none;
+}
+
+.stage-select,
+.status-input {
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    width: 100%;
+    font-size: 14px;
+}
+
+.stage-select:hover,
+.status-input:hover,
+.status-input:focus {
+    border-color: #2196F3;
+    outline: none;
+}
+
+.status-input {
+    background-color: transparent;
+}
+
+.status-select {
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    width: 100%;
+}
+
+.stage-select:hover,
+.status-select:hover {
+    border-color: #2196F3;
+}
+
+.stage-select {
+    min-width: 120px;
+    max-width: 150px;
+}
+
+/* 历史记录样式优化 */
+.history-item {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.history-description {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.value-change {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.old-value {
+    color: #f44336;
+}
+
+.new-value {
+    color: #4CAF50;
+}
+
+.value-change span {
+    font-weight: bold;
+    padding: 2px 6px;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 3px;
+}
+
+.no-records {
+    text-align: center;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    color: #666;
+}
+
+.back-btn {
+    background-color: #2196F3;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #1976D2;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.project-info {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+}
+
+.project-info h2 {
+    color: #2c3e50;
+    margin: 0 0 25px 0;
+    padding: 0 0 15px 0;
+    border-bottom: 2px solid #eee;
+    font-size: 1.5em;
+    position: relative;
+}
+
+.project-info h2:after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100px;
+    height: 2px;
+    background: #4a90e2;
+}
+
+.project-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.project-details p {
+    margin: 0;
+}
+
+/* 状态输入框样式 */
+.status-input {
+    min-height: 60px;
+    resize: none;
+    padding: 8px 10px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* 状态编辑按钮 */
+.status-container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.status-confirm {
+    background: none;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+    padding: 5px;
+    visibility: hidden;
+}
+
+.status-confirm.visible {
+    visibility: visible;
+}
+
+.status-confirm:hover {
+    color: #45a049;
+}
+
+/* 日报弹窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 95%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.date-input-container {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.date-input-container input[type="date"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.date-input-container button {
+    padding: 8px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.date-input-container button:hover {
+    background-color: #45a049;
+}
+
+.report-content {
+    flex-grow: 1;
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 4px;
+    overflow-y: auto;
+    max-height: calc(80vh - 150px);
+    border: 1px solid #eee;
+}
+
+.report-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin: 0;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.report-content p {
+    color: #666;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+}
+
+.close {
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 5px 10px;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* 删除按钮样式 */
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* 删除确认模态框样式 */
+.delete-confirm-modal {
+    max-width: 400px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.delete-confirm-modal .modal-body {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.delete-confirm-modal p {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-actions button {
+    padding: 8px 25px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    border: none;
+}
+
+.modal-actions button:first-child {
+    background-color: #6c757d;
+    color: white;
+}
+
+.modal-actions button:first-child:hover {
+    background-color: #5a6268;
+}
+
+.delete-confirm-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-confirm-btn:hover {
+    background-color: #c82333;
+}
+
+.modal-actions button {
+    padding: 8px 20px;
+}
+
+.datetime-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.date-row {
+    line-height: 1.2;
+}
+
+/* 调整网格列宽比例 */
+.project-header {
+    grid-template-columns: 0.3fr 0.8fr 1fr 2fr 0.8fr 0.8fr 0.6fr;
+}
+
+.project {
+    grid-template-columns: 0.3fr 0.8fr 1fr 2fr 0.8fr 0.8fr 0.6fr;
+}
+
+/* 操作列样式 */
+.project-actions {
+    display: flex;
+    gap: 5px;
+    min-width: 120px;
+}
+
+/* 项目选择拉框样式 */
+select[name="project_id"] {
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+select[name="project_id"] option {
+    padding: 8px;
+}
+
+/* 优先级选择样式 */
+select[name="priority"] {
+    padding: 10px 12px;
+    font-size: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+/* 任务显示样式调整 */
+.task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.task-info span {
+    font-size: 14px;
+    color: #666;
+}
+
+.task-info span:first-child {
+    color: #333;
+    font-weight: bold;
+}
+
+/* 优先级标识 */
+.priority-high {
+    color: #dc3545 !important;
+}
+
+.priority-medium {
+    color: #ffc107 !important;
+}
+
+.priority-low {
+    color: #28a745 !important;
+}
+
+/* 任务完成说明框样式 */
+.task-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.completion-note {
+    width: 100%;
+    min-height: 60px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    font-size: 14px;
+}
+
+.completion-note::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* 任务按钮样式 */
+.task-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.complete-btn, .cancel-btn {
+    flex: 1;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+}
+
+.complete-btn {
+    background-color: #28a745;
+}
+
+.complete-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-btn {
+    background-color: #dc3545;
+}
+
+.cancel-btn:hover {
+    background-color: #c82333;
+}
+
+/* 项目明细样式 */
+.project-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-item {
+    flex: 1;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.summary-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.summary-value.active {
+    color: #28a745;
+}
+
+.summary-value.recent {
+    color: #ffc107;
+}
+
+.summary-value.inactive {
+    color: #dc3545;
+}
+
+/* 项目环节分布样式 */
+.stage-summary {
+    margin-top: 20px;
+}
+
+.stage-summary h4 {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.stage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stage-item {
+    background: #fff;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stage-name {
+    font-size: 14px;
+    color: #495057;
+}
+
+.stage-count {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0d6efd;
+    background: #e7f1ff;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* 项目统计链接样式 */
+.summary-value {
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.summary-value:hover {
+    opacity: 0.8;
+}
+
+/* 项目列表页面样式 */
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.project-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.project-link {
+    text-decoration: none;
+    color: #495057;
+    font-size: 16px;
+    display: block;
+}
+
+.project-link:hover {
+    color: #0d6efd;
+}
+
+.back-link {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.back-link a {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.back-link a:hover {
+    color: #495057;
+}
+
+/* 项目信息样式 */
+.manager-info {
+    background: #fff;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.manager-info .info-item {
+    flex: 1;
+    min-width: 180px;
+}
+
+/* 移除最后一项的特殊样式 */
+.manager-info .info-item:last-child {
+    margin-right: 0;
+}
+
+/* 项目基本信息样式 */
+.project-basic-info {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;  /* ID占1份，客户名称占2份，区域占1份 */
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.project-basic-info input {
+    margin: 0;
+}
+
+/* 调整表单整体样式 */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 调整按钮位置 */
+form button[type="submit"] {
+    margin-top: 10px;
+}
+
+/* 设备信息表格样式 */
+.device-tables {
+    margin-top: 20px;
+}
+
+.device-table {
+    margin-bottom: 30px;
+}
+
+.device-table h5 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.device-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.device-table th,
+.device-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #e0e0e0;
+}
+
+.device-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+.device-table tr:hover {
+    background: #f9f9f9;
+}
+
+.device-table td {
+    color: #666;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .device-table {
+        overflow-x: auto;
+    }
+    
+    .device-table table {
+        min-width: 600px;
+    }
+}
+
+/* 设备参数录入表单样式 */
+.device-input-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.device-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.device-type-select select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 15px;
+}
+
+.device-basic-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.card-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.card-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.card-group label {
+    font-size: 14px;
+    color: #495057;
+}
+
+.card-group input {
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.add-device-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.2s;
+}
+
+.add-device-btn:hover {
+    background-color: #218838;
+}
+
+/* 设备输入框样式 */
+.device-input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.device-input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* 设备表格按钮样式 */
+.save-btn, .delete-btn, .add-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0 2px;
+}
+
+.save-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.add-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+.new-device-row {
+    background-color: #f8f9fa;
+}
+
+.device-table td {
+    padding: 8px;
+}
+
+/* 设备配置区域样式 */
+.device-config-section {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin: 20px 0;
+    border: 1px solid #e0e0e0;
+}
+
+.device-config-title {
+    color: #2c3e50;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+/* 各类设备样式 */
+.device-table {
+    margin-bottom: 25px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.device-table h5 {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    padding-left: 10px;
+    border-left: 4px solid;
+}
+
+/* 分流设备样式 */
+.diversion-device {
+    background-color: #f8f9ff;
+}
+
+.diversion-device h5 {
+    border-left-color: #4a90e2;
+    color: #4a90e2;
+}
+
+/* 光路保护设备样式 */
+.obp-device {
+    background-color: #fff9f8;
+}
+
+.obp-device h5 {
+    border-left-color: #e2574a;
+    color: #e2574a;
+}
+
+/* 数通设备样式 */
+.network-device {
+    background-color: #f8fff9;
+}
+
+.network-device h5 {
+    border-left-color: #2ecc71;
+    color: #2ecc71;
+}
+
+/* 电源设备样式 */
+.power-device {
+    background-color: #fff8fc;
+}
+
+.power-device h5 {
+    border-left-color: #9b59b6;
+    color: #9b59b6;
+}
+
+/* 表格样式优化 */
+.device-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.device-table th {
+    background: #fafafa;
+    padding: 12px 15px;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #eee;
+}
+
+.device-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.device-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* 输入框样式优化 */
+.device-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.device-input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74,144,226,0.1);
+}
+
+.new-device-row {
+    background-color: #fafafa;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .device-config-section {
+        padding: 15px;
+    }
+    
+    .device-table {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+}
+
+/* 设备行布局 */
+.device-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;  /* 平均分配空间 */
+    gap: 20px;  /* 设备表格之间的间距 */
+    margin-bottom: 25px;
+}
+
+/* 调整设备表格行内的样式 */
+.device-row .device-table {
+    margin-bottom: 0;  /* 移除底部边距为已经由 device-row 控制 */
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+    .device-row {
+        grid-template-columns: 1fr;  /* 在小屏幕上堆叠显示 */
+    }
+    
+    .device-row .device-table {
+        margin-bottom: 25px;  /* 在堆叠时恢复底部边距 */
+    }
+    
+    .device-row .device-table:last-child {
+        margin-bottom: 0;  /* 后一设备表格不需要底部边距 */
+    }
+}
+
+/* 设备头样式 */
+.device-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 10px;  /* 添加左右内边距 */
+}
+
+.device-header h5 {
+    margin: 0;
+}
+
+/* 添加按钮样式 */
+.add-device-btn {
+    background: #f0f0f0;  /* 添加背景色 */
+    border: 1px solid #ddd;  /* 添加边框 */
+    width: 28px;  /* 增加按钮大小 */
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+    margin-right: 10px;  /* 添加右边距 */
+}
+
+.plus-icon {
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    font-weight: bold;  /* 加粗加号 */
+    color: #666;  /* 设置颜色 */
+}
+
+/* 为不同设备类型设置不同的按钮悬停效果 */
+.diversion-device .add-device-btn:hover {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+}
+
+.obp-device .add-device-btn:hover {
+    background-color: #e2574a;
+    border-color: #e2574a;
+}
+
+.network-device .add-device-btn:hover {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+.power-device .add-device-btn:hover {
+    background-color: #9b59b6;
+    border-color: #9b59b6;
+}
+
+/* 悬停时加号变白色 */
+.add-device-btn:hover .plus-icon {
+    color: white;
+}
+
+/* 操作列样式 */
+.action-cell {
+    width: 50px;
+    text-align: center;
+}
+
+/* 删除按钮样式 */
+.delete-row-btn {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+    margin: 0 auto;
+}
+
+.minus-icon {
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    font-weight: bold;
+    color: #666;
+}
+
+/* 删除按钮悬停效果 */
+.delete-row-btn:hover {
+    background-color: #f44336;
+    border-color: #f44336;
+}
+
+.delete-row-btn:hover .minus-icon {
+    color: white;
+}
+
+/* 调整表头以适应新的操作列 */
+.device-table th:last-child {
+    width: 50px;
+}
+
+/* 确认对话框样式优化 */
+.confirm-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirm-dialog-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    top: -10%;
+    border: 2px solid #ffc107;  /* 添加警示边框 */
+}
+
+/* 警告图标样式 */
+.warning-icon {
+    color: #ffc107;  /* 改为警示黄色 */
+    font-size: 56px;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 标题样式 */
+.confirm-dialog h3 {
+    color: #f44336;
+    margin: 0 0 15px 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* 描述文本样式 */
+.confirm-dialog p {
+    margin: 0 0 30px 0;  /* 增加底部间距 */
+    color: #666;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* 按钮容器样式 */
+.confirm-dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;  /* 增加按钮间距 */
+    width: 100%;
+    max-width: 300px;  /* 限制按钮容器宽度 */
+    margin: 0 auto;  /* 居中按钮容器 */
+}
+
+/* 按钮基础样式 */
+.confirm-dialog button {
+    flex: 1;  /* 按钮等宽 */
+    padding: 12px 0;  /* 调整内边距 */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-width: 120px;
+    width: 100%;  /* 确保按钮填满容器 */
+}
+
+/* 取消按钮样式 */
+.cancel-btn {
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd !important;
+}
+
+.cancel-btn:hover {
+    background: #e0e0e0;
+}
+
+/* 确认按钮样式 */
+.confirm-btn {
+    background: #f44336;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background: #d32f2f;
+}
+
+/* 添加按钮焦点样式 */
+.cancel-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+}
+
+.confirm-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(244,67,54,0.3);
+}
+
+/* 确认聚焦取消按钮 */
+.cancel-btn {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+}
+
+/* 添加动画效果 */
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.confirm-dialog-content {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* 项目信息布局样式 */
+.info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.info-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.info-row:nth-child(2) {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.info-item label {
+    color: #495057;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.info-text {
+    flex: 1;
+    padding: 4px 8px;
+    min-width: 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.info-text:hover {
+    background-color: #f0f0f0;
+}
+
+.edit-input {
+    flex: 1;
+    padding: 4px 8px;
+    border: 1px solid #4CAF50;
+    border-radius: 4px;
+    min-width: 0;
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.edit-buttons button {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.save-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* 添加新项目表单样式 */
+.project-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-row .info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.form-row .info-item label {
+    color: #495057;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+.form-row .info-item input,
+.form-row .info-item select {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.form-row .info-item input:focus,
+.form-row .info-item select:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(76,175,80,0.1);
+}
+
+.project-form button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.project-form button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* 项目列表表格样式 */
+.projects-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+}
+
+.projects-table th,
+.projects-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* 调整当前状态列的宽度 */
+.projects-table .status-column {
+    width: 25%;  /* 增加当前状态列的宽度 */
+    max-width: 400px;  /* 设置最大宽度 */
+}
+
+.projects-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.projects-table tr {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 8px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.projects-table tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.projects-table tbody tr {
+    border-radius: 4px;
+    margin: 8px 0;
+}
+
+/* 调整其他列的宽度比例 */
+.projects-table td:nth-child(1) {  /* 项目ID列 */
+    width: 8%;
+}
+
+.projects-table td:nth-child(2) {  /* 客户名称列 */
+    width: 15%;
+}
+
+.projects-table td:nth-child(3) {  /* 项目环节列 */
+    width: 12%;
+}
+
+.projects-table td:nth-child(5),   /* 创建时间列 */
+.projects-table td:nth-child(6) {  /* 最后更新列 */
+    width: 12%;
+    white-space: nowrap;
+}
+
+.projects-table td:nth-child(7) {  /* 项目状态列 */
+    width: 10%;
+}
+
+/* 项目ID链接样式 */
+.project-id-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.project-id-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* 状态标签样式 */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-badge.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.maintenance {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.status-badge.expired {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.completed {
+    background-color: #e8eaf6;
+    color: #3949ab;
+}
+
+/* 重新激活控件样式 */
+.reactivate-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.reactivate-state {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.reactivate-controls button {
+    padding: 4px 8px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.reactivate-controls button:hover {
+    background-color: #218838;
+}
+
+/* 项目列表样式调整 */
+.project {
+    display: grid;
+    grid-template-columns: 0.3fr 0.8fr 1fr 2fr 0.8fr 0.8fr 0.6fr;
+    gap: 15px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9fa;
+    align-items: center;
+    min-height: 60px;
+}
+
+/* 状态输入框容器样式 */
+.status-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 状态输入框样式 */
+.status-input {
+    width: 100%;
+    min-height: 24px;
+    max-height: 72px;
+    padding: 4px 8px;
+    border: none;
+    background-color: transparent;
+    resize: none;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+    overflow: hidden;
+    text-align: left;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+}
+
+/* 保存按钮样式 */
+.save-status-btn {
+    opacity: 0;
+    padding: 4px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #4CAF50;
+    transition: opacity 0.2s;
+}
+
+.status-container:hover .save-status-btn {
+    opacity: 1;
+}
+
+.save-status-btn:hover {
+    color: #45a049;
+}
+
+.status-input:focus + .save-status-btn {
+    opacity: 1;
+}
+
+/* 状态输入框悬停提示 */
+.status-tooltip {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    max-width: 300px;
+    word-wrap: break-word;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+}
+
+/* 添加箭头 */
+.status-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 10px;
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}
+
+.status-container:hover .status-tooltip {
+    display: block;
+}
+
+.status-input:focus {
+    outline: none;
+    background-color: #fff;
+    box-shadow: inset 0 0 0 1px #4CAF50;
+    border-radius: 4px;
+}
+
+/* 项目操作区域样式 */
+.project-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* 状态选择下拉框样式 */
+.state-select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    min-width: 120px;
+    height: 32px;
+}
+
+/* 完成按钮样式 */
+.complete-btn {
+    padding: 6px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.complete-btn:hover {
+    background-color: #45a049;
+}
+
+/* 项目头部样式 */
+.project-header {
+    display: grid;
+    grid-template-columns: 0.3fr 0.8fr 1fr 2fr 0.8fr 0.8fr 0.6fr;
+    gap: 15px;
+    padding: 10px 15px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+/* 项目列表容器样式 */
+.projects {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 确保所有内容���对齐 */
+.project > span,
+.project-header > span {
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+/* 环节选择容器样式 */
+.stage-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 环节选择下拉框样式 */
+.stage-select {
+    width: 100%;
+    min-height: 24px;
+    padding: 4px 8px;
+    border: none;
+    background-color: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+.stage-select:focus {
+    outline: none;
+    background-color: #fff;
+    box-shadow: inset 0 0 0 1px #4CAF50;
+    border-radius: 4px;
+}
+
+/* 操作容器样式 */
+.action-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 状态选择下拉框样式 */
+.state-select {
+    flex: 1;
+    min-height: 24px;
+    padding: 4px 8px;
+    border: none;
+    background-color: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+.state-select:focus {
+    outline: none;
+    background-color: #fff;
+    box-shadow: inset 0 0 0 1px #4CAF50;
+    border-radius: 4px;
+}
+
+/* 完成按钮样式 */
+.complete-btn {
+    padding: 4px 8px;
+    background-color: transparent;
+    color: #4CAF50;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: inherit;
+}
+
+.complete-btn:hover {
+    color: #45a049;
+    text-decoration: underline;
+}
+
+/* 项目行样式 */
+.project {
+    display: grid;
+    grid-template-columns: 0.3fr 0.8fr 1fr 2fr 0.8fr 0.8fr 0.6fr;
+    gap: 15px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9fa;
+    align-items: center;
+    min-height: 60px;
+}
+
+/* 确保所有内容左对齐和垂直居中 */
+.project > span,
+.project-header > span {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+}
+
+/* 移除下拉框输入框的默认边框 */
+.stage-select,
+.status-input,
+.state-select {
+    border: none;
+    background-color: transparent;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* 添加下拉箭头图标 */
+.stage-select,
+.state-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%23666' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 24px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    z-index: 1000;
+    animation: fadeIn 0.3s, fadeOut 0.3s 1.7s;
+}
+
+.toast.success {
+    background-color: #4CAF50;
+}
+
+.toast.error {
+    background-color: #f44336;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(20px); }
+}
+
+/* 日报模态框样式 */
+.modal-content {
+    position: relative;
+    padding: 20px;
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.modal-actions {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.export-btn,
+.edit-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.export-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.edit-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+.export-btn:hover {
+    background-color: #45a049;
+}
+
+.edit-btn:hover {
+    background-color: #1976D2;
+}
+
+.close {
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* 导出选项样式 */
+.export-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    width: 500px;
+}
+
+.export-date-range {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.date-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.export-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-item input {
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.export-item button {
+    padding: 6px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.export-item button:hover {
+    background-color: #45a049;
+}
+
+.edit-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-input {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.save-btn, .cancel-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.save-btn {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #357abd;
+}
+
+.cancel-btn {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.cancel-btn:hover {
+    background-color: #e8e8e8;
+}
+
+.info-text {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.info-text:hover {
+    background-color: #f5f5f5;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.info-item label {
+    min-width: 80px;
+    color: #666;
+}
+
+.reactivate-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reactivate-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.reactivate-controls .state-select {
+    padding: 2px 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.reactivate-btn {
+    padding: 2px 8px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.reactivate-btn:hover {
+    background-color: #45a049;
+}
+
+/* 报告按钮容器样式 */
+.report-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* 模块头部样式 */
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* 导出按钮样式 */
+.export-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.export-btn i {
+    font-size: 14px;
+}
+
+.export-btn:hover {
+    background-color: #45a049;
+}
+
+/* 查看报告按钮样式 */
+.view-reports-btn {
+    padding: 8px 15px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.view-reports-btn:hover {
+    background-color: #1976D2;
+}
+  

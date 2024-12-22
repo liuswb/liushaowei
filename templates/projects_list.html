@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>项目列表 - {{ state }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="module">
+            <h2 class="module-title">{{ state }}</h2>
+            <div class="section">
+                <div class="projects-list">
+                    {% for project in projects %}
+                    <div class="project-item">
+                        <a href="{{ url_for('project_history', project_id=project.id) }}" class="project-link">
+                            {{ project.id }} - {{ project.name }}
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="back-link">
+                    <a href="{{ url_for('index') }}">返回首页</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

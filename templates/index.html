@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>日常工作辅助系统</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/project.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <div class="user-info">
+                <span>当前用户：{{ session.username }}</span>
+                {% if session.role == 'admin' %}
+                <a href="{{ url_for('user_management') }}" class="nav-link">用户管理</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="nav-link logout-btn">注销</a>
+            </div>
+        </div>
+        <h1>日常工作辅助系统</h1>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="modules-container">
+            <!-- 项目管理模块 -->
+            <div class="module project-module">
+                <h2 class="module-title">项目管理</h2>
+                
+                <div class="section">
+                    <h2 class="module-title">项目状态总览</h2>
+                    <div class="project-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">总项目数</span>
+                            <a href="{{ url_for('projects_by_state', state='total') }}" class="summary-value">
+                                {{ project_stats.total.count }}
+                            </a>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">进行中</span>
+                            <a href="{{ url_for('projects_by_state', state='active') }}" class="summary-value active">
+                                {{ project_stats.active.count }}
+                            </a>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">维保中</span>
+                            <a href="{{ url_for('projects_by_state', state='recent_inactive') }}" class="summary-value recent">
+                                {{ project_stats.recent_inactive.count }}
+                            </a>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">合同到期退网</span>
+                            <a href="{{ url_for('projects_by_state', state='long_inactive') }}" class="summary-value inactive">
+                                {{ project_stats.long_inactive.count }}
+                            </a>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">已完成</span>
+                            <a href="{{ url_for('projects_by_state', state='completed') }}" class="summary-value completed">
+                                {{ project_stats.completed.count }}
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-summary">
+                        <h4>项目环节分布</h4>
+                        <div class="stage-grid">
+                            {% for stage, info in project_stats.stages.items() %}
+                            <div class="stage-item">
+                                <span class="stage-name">{{ stage }}</span>
+                                <a href="{{ url_for('projects_by_stage', stage=stage) }}" class="stage-count">
+                                    {{ info.count }}
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section collapsible-section">
+                    <h3 class="collapsible-header" onclick="toggleSection('addProjectForm')">
+                        <span>添加新项目</span>
+                        <span class="toggle-icon">▼</span>
+                    </h3>
+                    <form id="addProjectForm" class="collapsible-content project-form" action="{{ url_for('add_project') }}" method="post">
+                        <!-- 第一行 -->
+                        <div class="form-row">
+                            <div class="info-item">
+                                <label>项目ID：</label>
+                                <input type="number" name="project_id" required>
+                            </div>
+                            <div class="info-item">
+                                <label>客户名称：</label>
+                                <input type="text" name="client_name" required>
+                            </div>
+                            <div class="info-item">
+                                <label>项目环节：</label>
+                                <select name="stage" required>
+                                    <option value="">请选择环节</option>
+                                    <option value="当前方案支撑">当前方案支撑</option>
+                                    <option value="现场察">现场察</option>
+                                    <option value="客户沟通">客户沟通</option>
+                                    <option value="IP规划及方案确认">IP规划及方案确认</option>
+                                    <option value="设备安装">设备安装</option>
+                                    <option value="设备调测">设备调测</option>
+                                    <option value="业务联调">业务联调</option>
+                                    <option value="验收">验收</option>
+                                    <option value="项目结款">项目结款</option>
+                                    <option value="尾款结算">尾款结算</option>
+                                    <option value="日常维护">日常维护</option>
+                                    <option value="故障处理">故障处理</option>
+                                    <option value="退网清算">退网清算</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <label>当前状态：</label>
+                                <input type="text" name="status" placeholder="请输入项目状态">
+                            </div>
+                        </div>
+                        <!-- 第二行 -->
+                        <div class="form-row">
+                            <div class="info-item">
+                                <label>项目区域：</label>
+                                <input type="text" name="area" required>
+                            </div>
+                            <div class="info-item">
+                                <label>项目经理：</label>
+                                <input type="text" name="manager" required>
+                            </div>
+                            <div class="info-item">
+                                <label>联系电话：</label>
+                                <input type="text" name="manager_phone" required>
+                            </div>
+                        </div>
+                        <button type="submit">添加项目</button>
+                    </form>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-header" onclick="toggleSection('activeProjects')">
+                        <span>进行中项目</span>
+                        <span class="toggle-icon">▼</span>
+                    </h3>
+                    <div id="activeProjects" class="projects">
+                        <div class="project-header">
+                            <span>ID</span>
+                            <span>客户</span>
+                            <span>环节</span>
+                            <span>当前状态</span>
+                            <span>创建时间</span>
+                            <span>最后更新</span>
+                            <span>操作</span>
+                        </div>
+                        {% for project in active_projects %}
+                        <div class="project">
+                            <span>
+                                <a href="{{ url_for('project_history', project_id=project[0]) }}" class="id-link">{{ project[0] }}</a>
+                            </span>
+                            <span>{{ project[1] }}</span>
+                            <span class="stage-container">
+                                <select class="stage-select" onchange="updateProjectStage('{{ project[0] }}', this.value)">
+                                    <option value="{{ project[2] }}" selected>{{ project[2] }}</option>
+                                    <option value="当前方案支撑">当前方案支撑</option>
+                                    <option value="现场察">现场察</option>
+                                    <option value="客户沟通">客户沟通</option>
+                                    <option value="IP规划及方案确认">IP规划及方案确认</option>
+                                    <option value="设备安装">设备安装</option>
+                                    <option value="设备调测">设备调测</option>
+                                    <option value="业务联调">业务联调</option>
+                                    <option value="验收">验收</option>
+                                    <option value="项目结款">项目结款</option>
+                                    <option value="尾款结算">尾款结算</option>
+                                    <option value="日常维护">日常维护</option>
+                                    <option value="故障处理">故障处理</option>
+                                    <option value="退网清算">退网清算</option>
+                                </select>
+                            </span>
+                            <span class="status-container">
+                                <input type="text" class="status-input"
+                                     onchange="handleStatusChange(this, '{{ project[0] }}')"
+                                     onblur="autoSaveStatus(this, '{{ project[0] }}')"
+                                     value="{{ project[3] }}"
+                                     title="{{ project[3] }}">
+                                <div class="status-tooltip">{{ project[3] }}</div>
+                                <button class="save-status-btn" onclick="saveStatus(this, '{{ project[0] }}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </span>
+                            <span class="datetime-column">{{ project[4]|datetime }}</span>
+                            <span class="datetime-column">{{ project[5]|datetime }}</span>
+                            <span class="action-container">
+                                <select class="state-select" onchange="updateProjectState('{{ project[0] }}', this.value)">
+                                    <option value="active" selected>进行中</option>
+                                    <option value="recent_inactive">维保中</option>
+                                    <option value="long_inactive">合同到期退网</option>
+                                </select>
+                                <button class="complete-btn" onclick="completeProject('{{ project[0] }}')">完成</button>
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-header" onclick="toggleSection('maintenanceProjects')">
+                        <span>维保中项目</span>
+                        <span class="toggle-icon">▼</span>
+                    </h3>
+                    <div id="maintenanceProjects" class="projects">
+                        <div class="project-header">
+                            <span>ID</span>
+                            <span>客户</span>
+                            <span>环节</span>
+                            <span>当前状态</span>
+                            <span>创建时间</span>
+                            <span>最后更新</span>
+                            <span>操作</span>
+                        </div>
+                        {% for project in recent_inactive %}
+                        <div class="project">
+                            <span>
+                                <a href="{{ url_for('project_history', project_id=project[0]) }}" class="id-link">{{ project[0] }}</a>
+                            </span>
+                            <span>{{ project[1] }}</span>
+                            <span class="stage-container">
+                                <select class="stage-select" onchange="updateProjectStage('{{ project[0] }}', this.value)">
+                                    <option value="{{ project[2] }}" selected>{{ project[2] }}</option>
+                                    <option value="当前方案支撑">当前方案支撑</option>
+                                    <option value="现场察">现场察</option>
+                                    <option value="客户沟通">客户沟通</option>
+                                    <option value="IP规划及方案确认">IP规划及方案确认</option>
+                                    <option value="设备安装">设备安装</option>
+                                    <option value="设备调测">设备调测</option>
+                                    <option value="业务联调">业务联调</option>
+                                    <option value="验收">验收</option>
+                                    <option value="项目结款">项目结款</option>
+                                    <option value="尾款结算">尾款结算</option>
+                                    <option value="日常维护">日常维护</option>
+                                    <option value="故障处理">故障处理</option>
+                                    <option value="退网清算">退网清算</option>
+                                </select>
+                            </span>
+                            <span class="status-container">
+                                <input type="text" class="status-input"
+                                     onchange="handleStatusChange(this, '{{ project[0] }}')"
+                                     onblur="autoSaveStatus(this, '{{ project[0] }}')"
+                                     value="{{ project[3] }}"
+                                     title="{{ project[3] }}">
+                                <div class="status-tooltip">{{ project[3] }}</div>
+                                <button class="save-status-btn" onclick="saveStatus(this, '{{ project[0] }}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </span>
+                            <span class="datetime-column">{{ project[4]|datetime }}</span>
+                            <span class="datetime-column">{{ project[5]|datetime }}</span>
+                            <span class="action-container">
+                                <select class="state-select" onchange="updateProjectState('{{ project[0] }}', this.value)">
+                                    <option value="active">进行中</option>
+                                    <option value="recent_inactive" selected>维保中</option>
+                                    <option value="long_inactive">合同到期退网</option>
+                                </select>
+                                <button class="complete-btn" onclick="completeProject('{{ project[0] }}')">完成</button>
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-header" onclick="toggleSection('expiredProjects')">
+                        <span>合同到期退网项目</span>
+                        <span class="toggle-icon">▼</span>
+                    </h3>
+                    <div id="expiredProjects" class="projects">
+                        <div class="project-header">
+                            <span>ID</span>
+                            <span>客户</span>
+                            <span>环节</span>
+                            <span>当前状态</span>
+                            <span>创建时间</span>
+                            <span>最后更新</span>
+                            <span>操作</span>
+                        </div>
+                        {% for project in long_inactive %}
+                        <div class="project">
+                            <span>
+                                <a href="{{ url_for('project_history', project_id=project[0]) }}" class="id-link">{{ project[0] }}</a>
+                            </span>
+                            <span>{{ project[1] }}</span>
+                            <span class="stage-container">
+                                <select class="stage-select" onchange="updateProjectStage('{{ project[0] }}', this.value)">
+                                    <option value="{{ project[2] }}" selected>{{ project[2] }}</option>
+                                    <option value="当前方案支撑">当前方案支撑</option>
+                                    <option value="现场察">现场察</option>
+                                    <option value="客户沟通">客户沟通</option>
+                                    <option value="IP规划及方案确认">IP规划及方案确认</option>
+                                    <option value="设备安装">设备安装</option>
+                                    <option value="设备调测">设备调测</option>
+                                    <option value="业务联调">业务联调</option>
+                                    <option value="验收">验收</option>
+                                    <option value="项目结款">项目结款</option>
+                                    <option value="尾款结算">尾款结算</option>
+                                    <option value="日常维护">日常维护</option>
+                                    <option value="故障处理">故障处理</option>
+                                    <option value="退网清算">退网清算</option>
+                                </select>
+                            </span>
+                            <span class="status-container">
+                                <input type="text" class="status-input"
+                                     onchange="handleStatusChange(this, '{{ project[0] }}')"
+                                     onblur="autoSaveStatus(this, '{{ project[0] }}')"
+                                     value="{{ project[3] }}"
+                                     title="{{ project[3] }}">
+                                <div class="status-tooltip">{{ project[3] }}</div>
+                                <button class="save-status-btn" onclick="saveStatus(this, '{{ project[0] }}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </span>
+                            <span class="datetime-column">{{ project[4]|datetime }}</span>
+                            <span class="datetime-column">{{ project[5]|datetime }}</span>
+                            <span class="action-container">
+                                <select class="state-select" onchange="updateProjectState('{{ project[0] }}', this.value)">
+                                    <option value="active">进行中</option>
+                                    <option value="recent_inactive">维保中</option>
+                                    <option value="long_inactive" selected>合同到期退网</option>
+                                </select>
+                                <button class="complete-btn" onclick="completeProject('{{ project[0] }}')">完成</button>
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工作管理模块 -->
+            <div class="module task-module">
+                <h2 class="module-title">工作管理</h2>
+                
+                <div class="section">
+                    <div class="module-header">
+                        <h3>添加今日任务</h3>
+                        <div class="report-buttons">
+                            <button onclick="showExportDialog()" class="export-btn">
+                                <i class="fas fa-download"></i> 导出
+                            </button>
+                            <button onclick="showReportModal()" class="view-reports-btn">查看日报</button>
+                        </div>
+                    </div>
+                    <form action="{{ url_for('add_task') }}" method="post">
+                        <select name="project_id" required>
+                            <option value="0">临时任务</option>
+                            <option value="daily">日常工作</option>
+                            {% for project in active_projects %}
+                            <option value="{{ project[0] }}">{{ project[1] }}</option>
+                            {% endfor %}
+                            {% for project in recent_inactive %}
+                            <option value="{{ project[0] }}">{{ project[1] }}</option>
+                            {% endfor %}
+                            {% for project in long_inactive %}
+                            <option value="{{ project[0] }}">{{ project[1] }}</option>
+                            {% endfor %}
+                        </select>
+                        <textarea name="content" placeholder="任务内容" required></textarea>
+                        <select name="priority" required>
+                            <option value="high">高优先级</option>
+                            <option value="medium">中优先级</option>
+                            <option value="low">低优先级</option>
+                        </select>
+                        <button type="submit">添加任务</button>
+                    </form>
+                </div>
+
+                <div class="section">
+                    <h3>今日任务</h3>
+                    <div class="tasks">
+                        {% for task in tasks %}
+                        <div class="task" id="task-{{ task[0] }}">
+                            <div class="task-info">
+                                <span>{% if task[1] %}项目ID: {{ task[1] }}{% else %}临时任务{% endif %}</span>
+                                <span>内容: {{ task[2] }}</span>
+                                <span class="priority-{{ 'high' if task[3] == 3 else 'medium' if task[3] == 2 else 'low' }}">
+                                    优先级: {{ '高' if task[3] == 3 else '中' if task[3] == 2 else '低' }}
+                                </span>
+                            </div>
+                            <div class="task-time">
+                                <span>开始: {{ task[4]|datetime }}</span>
+                                {% if task[5] %}
+                                <span>完成: {{ task[5]|datetime }}</span>
+                                {% else %}
+                                <div class="task-actions">
+                                    <textarea class="completion-note" placeholder="请输入完成说明..."></textarea>
+                                    <div class="task-buttons">
+                                        <a href="#" onclick="completeTask('{{ task[0] }}', this); return false;" class="complete-btn">完成</a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日报查看弹窗 -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">查看日报</h3>
+                <span class="close" onclick="closeReportModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="date-input-container">
+                    <input type="date" id="reportDate" value="">
+                    <button onclick="loadDailyReport()">查看</button>
+                </div>
+                <div id="reportContent" class="report-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出选项弹窗 -->
+    <div id="exportDropdown" class="export-dropdown" style="display: none;">
+        <div class="export-dropdown-header">
+            <span>导出选项</span>
+            <span class="close-dropdown" onclick="closeExportDialog()">&times;</span>
+        </div>
+        <div class="export-options-container">
+            <div class="export-options">
+                <div class="export-section">
+                    <h4>按日期范围导出</h4>
+                    <div class="date-range-picker">
+                        <div class="date-input">
+                            <label>开始日期：</label>
+                            <input type="date" id="exportStartDate">
+                        </div>
+                        <div class="date-input">
+                            <label>结束日期：</label>
+                            <input type="date" id="exportEndDate">
+                        </div>
+                        <button onclick="exportDateRange()" class="export-btn">导出日期范围</button>
+                    </div>
+                </div>
+                
+                <div class="export-section">
+                    <h4>导出周报</h4>
+                    <div class="week-picker">
+                        <input type="week" id="exportWeek" class="date-input">
+                        <button onclick="exportWeeklyReport()" class="export-btn">导出周报</button>
+                    </div>
+                </div>
+                
+                <div class="export-section">
+                    <h4>导出月报</h4>
+                    <div class="month-picker">
+                        <input type="month" id="exportMonth" class="date-input">
+                        <button onclick="exportMonthlyReport()" class="export-btn">导出月报</button>
+                    </div>
+                </div>
+                
+                <div class="export-section">
+                    <h4>导出日报</h4>
+                    <div class="date-picker">
+                        <input type="date" id="exportDate" class="date-input">
+                        <button onclick="exportDailyReport()" class="export-btn">导出日报</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加确认删除的 -->
+    <div id="confirmDialog" class="confirm-dialog">
+        <div class="confirm-dialog-content">
+            <div class="warning-icon">
+                <i>⚠</i>
+            </div>
+            <h3>确定删除</h3>
+        </div>
+    </div>
+
+    <!-- 添加样式 -->
+    <style>
+    .export-dropdown {
+        position: absolute;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        min-width: 300px;
+        max-height: 80vh;  /* 设置最大高度为视窗高度的80% */
+        cursor: move;
+        user-select: none;
+        right: 20px;      /* 固定在右侧 */
+        top: 50px;        /* 距离顶部的距离 */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .export-dropdown-header {
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: grab;
+        flex-shrink: 0;  /* 防止头部被缩 */
+        z-index: 1;
+    }
+
+    .export-dropdown-header:active {
+        cursor: grabbing;
+    }
+
+    .export-options-container {
+        max-height: 400px;  /* 固定最大高度 */
+        overflow-y: auto;
+        padding: 15px;
+        flex-grow: 1;    /* 允许内容区域伸展 */
+    }
+
+    .close-dropdown {
+        cursor: pointer;
+        font-size: 20px;
+        color: #666;
+        padding: 5px 10px;
+    }
+
+    .close-dropdown:hover {
+        color: #333;
+        background-color: #eee;
+        border-radius: 4px;
+    }
+
+    /* 自定义滚动条样式 */
+    .export-options-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .export-options-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .export-options-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .export-options-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .export-section {
+        margin-bottom: 20px;
+    }
+
+    .export-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .export-section h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .date-range-picker,
+    .week-picker,
+    .month-picker,
+    .date-picker {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .date-input {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .date-input label {
+        min-width: 80px;
+    }
+
+    .date-input input {
+        flex: 1;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .export-btn {
+        padding: 8px 15px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .export-btn:hover {
+        background-color: #45a049;
+    }
+    </style>
+
+    <script>
+    function loadDailyReport() {
+        const date = document.getElementById('reportDate').value;
+        if (!date) {
+            alert('请选择日期');
+            return;
+        }
+        
+        fetch(`/get_daily_report/${date}`)
+            .then(response => response.json())
+            .then(data => {
+                const reportContent = document.getElementById('reportContent');
+                if (data.success && data.report) {
+                    reportContent.innerHTML = `<pre>${data.report.content}</pre>`;
+                } else {
+                    reportContent.innerHTML = '<p>该日工作记录</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('reportContent').innerHTML = '<p>加载失败，请重试</p>';
+            });
+    }
+
+    function closeReportModal() {
+        document.getElementById('reportModal').style.display = 'none';
+    }
+
+    function showReportModal() {
+        const modal = document.getElementById('reportModal');
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('reportDate').value = today;
+        modal.style.display = 'block';
+        loadDailyReport();  // 自动加载今天的日报
+    }
+
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+        const modal = document.getElementById('reportModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+    </script>
+</body>
+</html> 

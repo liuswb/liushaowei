@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>工作日报 - 日常工作辅助系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+    <style>
+        .project-section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .section-header:hover {
+            background-color: #e9e9e9;
+        }
+
+        .section-content {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .toggle-icon {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .project-sections {
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            position: absolute;
+            background-color: #fefefe;
+            padding: 0;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            right: 20px;
+            top: 20px;
+            transform: none;
+        }
+
+        .modal-header {
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .report-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            position: absolute;
+            background-color: #fefefe;
+            padding: 0;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+        }
+
+        .modal-header {
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>工作日报</h1>
+            <a href="{{ url_for('index') }}" class="back-btn">返回主页</a>
+        </div>
+
+        <div class="reports-container">
+            <div class="report-controls">
+                <div class="date-picker">
+                    <label>选择日期：</label>
+                    <input type="text" id="datePicker" placeholder="选择日期">
+                </div>
+                <div class="month-picker">
+                    <label>选择月份：</label>
+                    <input type="text" id="monthPicker" placeholder="选择月份">
+                </div>
+            </div>
+
+            <div class="report-content">
+                <div id="projectCategories" class="project-sections">
+                    <div class="project-section">
+                        <div class="section-header" onclick="toggleSection('activeProjects')">
+                            <h3>进行中项目</h3>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="activeProjects" class="section-content"></div>
+                    </div>
+
+                    <div class="project-section">
+                        <div class="section-header" onclick="toggleSection('maintenanceProjects')">
+                            <h3>维保中项目</h3>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="maintenanceProjects" class="section-content"></div>
+                    </div>
+
+                    <div class="project-section">
+                        <div class="section-header" onclick="toggleSection('expiredProjects')">
+                            <h3>合同到期退网项目</h3>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="expiredProjects" class="section-content"></div>
+                    </div>
+                </div>
+
+                <div id="daily-report-content" class="report-content" style="white-space: pre-wrap;">
+                    <!-- 日报内容将通过JavaScript动态插入这里 -->
+                </div>
+                
+                <div id="monthlyReport" class="report-section">
+                    <h2>月报</h2>
+                    <div class="report-body"></div>
+                </div>
+            </div>
+
+            <div class="report-actions">
+                <button onclick="showExportDialog('daily')" class="btn btn-primary">导出日报</button>
+                <button onclick="showExportDialog('weekly')" class="btn btn-primary">导出周报</button>
+                <button onclick="showExportDialog('monthly')" class="btn btn-primary">导出月报</button>
+            </div>
+        </div>
+
+        <!-- 导出弹窗 -->
+        <div id="exportDialog" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="exportDialogTitle">导出报告</h5>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="dateRangeSelector" style="margin-bottom: 20px;">
+                        <!-- 日期选择区域将由JavaScript动态填充 -->
+                    </div>
+                    <div class="export-options">
+                        <button onclick="exportReport()" class="btn btn-primary">导出文本格式</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 按日期范围导出弹窗 -->
+        <div id="dateRangeDialog" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>按日期范围导出</h5>
+                    <span class="close" onclick="closeDateRangeDialog()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>开始日期：</label>
+                        <input type="text" id="startDate" class="form-control">
+                    </div>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>结束日期：</label>
+                        <input type="text" id="endDate" class="form-control">
+                    </div>
+                    <div class="export-options">
+                        <button onclick="exportDateRange()" class="btn btn-primary">导出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    flatpickr.localize(flatpickr.l10n.zh);
+    
+    const datePicker = flatpickr("#datePicker", {
+        dateFormat: "Y-m-d",
+        defaultDate: "today",
+        onChange: function(selectedDates) {
+            if (selectedDates.length > 0) {
+                const dateStr = selectedDates[0].toISOString().split('T')[0];
+                showDailyReport(dateStr);
+            }
+        }
+    });
+
+    const monthPicker = flatpickr("#monthPicker", {
+        dateFormat: "Y-m",
+        onChange: function(selectedDates) {
+            if (selectedDates.length > 0) {
+                loadMonthlyReport(selectedDates[0]);
+            }
+        }
+    });
+
+    function loadDailyReport(date) {
+        const dateStr = date.toISOString().split('T')[0];
+        fetch(`/get_daily_report/${dateStr}`)
+            .then(response => response.json())
+            .then(data => {
+                const reportBody = document.querySelector('#dailyReport .report-body');
+                if (data.success && data.report) {
+                    reportBody.innerHTML = `<pre>${data.report.content}</pre>`;
+                } else {
+                    reportBody.innerHTML = '<p>该日无工作记录</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.querySelector('#dailyReport .report-body').innerHTML = 
+                    '<p>加载失败，请重试</p>';
+            });
+    }
+
+    function loadMonthlyReport(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        fetch(`/get_monthly_report/${year}/${month}`)
+            .then(response => response.json())
+            .then(data => {
+                const reportBody = document.querySelector('#monthlyReport .report-body');
+                if (data.success && data.reports && data.reports.length > 0) {
+                    const content = data.reports.map(report => 
+                        `<div class="daily-entry">
+                            <h3>${report.report_date}</h3>
+                            <pre>${report.content}</pre>
+                        </div>`
+                    ).join('');
+                    reportBody.innerHTML = content;
+                } else {
+                    reportBody.innerHTML = '<p>该月无工作记录</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.querySelector('#monthlyReport .report-body').innerHTML = 
+                    '<p>加载失败，请重试</p>';
+            });
+    }
+
+    function toggleSection(sectionId) {
+        const content = document.getElementById(sectionId);
+        const header = content.previousElementSibling;
+        const icon = header.querySelector('.toggle-icon');
+        
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            icon.textContent = '▼';
+        } else {
+            content.style.display = 'none';
+            icon.textContent = '▶';
+        }
+    }
+
+    // 设置默认显示今天的日报
+    datePicker.setDate(new Date());
+
+    // 添加相关的CSS样式
+    const style = document.createElement('style');
+    style.textContent = `
+        .project-section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+
+        .section-header:hover {
+            background-color: #e9e9e9;
+        }
+
+        .section-content {
+            padding: 15px;
+        }
+
+        .toggle-icon {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+    `;
+    document.head.appendChild(style);
+
+    function showDailyReport(date) {
+        fetch(`/get_daily_report/${date}`)
+            .then(response => response.json())
+            .then(data => {
+                const reportDiv = document.getElementById('daily-report-content');
+                const modalContent = reportDiv.closest('.modal-content');
+                if (modalContent) {
+                    // 设置初始位置
+                    modalContent.style.transform = 'none';
+                    modalContent.style.right = '20px';
+                    modalContent.style.top = '20px';
+                    modalContent.style.left = 'auto';
+                }
+                
+                if (data.success && data.report) {
+                    reportDiv.textContent = data.report.content;
+                    
+                    // 更新导出按钮的链接
+                    const exportBtn = document.getElementById('export-daily-btn');
+                    if (exportBtn) {
+                        exportBtn.href = `/export_daily_report_word/${date}`;
+                    }
+                } else {
+                    reportDiv.textContent = '该日无工作记录';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('daily-report-content').textContent = '加载失败，请重试';
+            });
+    }
+
+    // 页面加载时显示今天的日报
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        showDailyReport(today);
+    });
+
+    // 添加拖拽功能
+    function initDraggable(modalId) {
+        const modal = document.getElementById(modalId);
+        const modalContent = modal.querySelector('.modal-content');
+        const modalHeader = modal.querySelector('.modal-header');
+        let isDragging = false;
+        let startX, startY;
+
+        modalHeader.onmousedown = function(e) {
+            isDragging = true;
+            const rect = modalContent.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            modalContent.style.transition = 'none';
+            
+            // 设置初始位置
+            modalContent.style.right = 'auto';
+            modalContent.style.left = rect.left + 'px';
+            modalContent.style.top = rect.top + 'px';
+            
+            e.preventDefault();
+        };
+
+        document.onmousemove = function(e) {
+            if (isDragging) {
+                const x = e.clientX - startX;
+                const y = e.clientY - startY;
+                modalContent.style.left = x + 'px';
+                modalContent.style.top = y + 'px';
+            }
+        };
+
+        document.onmouseup = function() {
+            isDragging = false;
+        };
+    }
+
+    // 初始化所有弹窗的拖拽功能
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化查看日报窗口的拖拽
+        initDraggable('exportDialog');
+        initDraggable('dateRangeDialog');
+        
+        // 点击关闭按钮关闭弹窗
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.onclick = function() {
+                this.closest('.modal').style.display = 'none';
+            };
+        });
+        
+        // 点击弹窗外部关闭
+        document.querySelectorAll('.modal').forEach(dialog => {
+            dialog.onclick = function(event) {
+                if (event.target === this) {
+                    this.style.display = 'none';
+                }
+            };
+        });
+    });
+
+    // 显示导出对话框
+    function showExportDialog(date) {
+        const dialog = document.getElementById('exportDialog');
+        dialog.style.display = 'block';
+        
+        // 重置弹窗位置
+        const modalContent = dialog.querySelector('.modal-content');
+        modalContent.style.transform = 'translate(-50%, -50%)';
+        
+        // 设置导出按钮的事件
+        document.getElementById('exportTxt').onclick = function() {
+            window.location.href = `/export_daily_report/${date}`;
+            dialog.style.display = 'none';
+        };
+    }
+
+    let currentExportType = '';
+    let dragOffset = { x: 0, y: 0 };
+
+    // 显示导出对话框
+    function showExportDialog(type) {
+        currentExportType = type;
+        const dialog = document.getElementById('exportDialog');
+        const title = document.getElementById('exportDialogTitle');
+        const dateSelector = document.getElementById('dateRangeSelector');
+        
+        // 设置标题
+        switch(type) {
+            case 'daily':
+                title.textContent = '导出日报';
+                dateSelector.innerHTML = `
+                    <label>选择日期：</label>
+                    <input type="text" id="exportDate" class="form-control">
+                `;
+                flatpickr("#exportDate", {
+                    dateFormat: "Y-m-d",
+                    defaultDate: "today"
+                });
+                break;
+            case 'weekly':
+                title.textContent = '导出周报';
+                dateSelector.innerHTML = `
+                    <label>选择周：</label>
+                    <input type="text" id="exportWeek" class="form-control">
+                `;
+                flatpickr("#exportWeek", {
+                    dateFormat: "Y-W",
+                    defaultDate: "today",
+                    weekNumbers: true
+                });
+                break;
+            case 'monthly':
+                title.textContent = '导出月报';
+                dateSelector.innerHTML = `
+                    <label>选择月份：</label>
+                    <input type="text" id="exportMonth" class="form-control">
+                `;
+                flatpickr("#exportMonth", {
+                    dateFormat: "Y-m",
+                    defaultDate: "today"
+                });
+                break;
+        }
+        
+        dialog.style.display = 'block';
+        const modalContent = dialog.querySelector('.modal-content');
+        modalContent.style.transform = 'translate(-50%, -50%)';
+        modalContent.style.left = '50%';
+        modalContent.style.top = '30%';
+    }
+
+    // 导出报告
+    function exportReport() {
+        let url = '';
+        switch(currentExportType) {
+            case 'daily':
+                const date = document.getElementById('exportDate').value;
+                url = `/export_daily_report/${date}`;
+                break;
+            case 'weekly':
+                const weekDate = document.getElementById('exportWeek').value;
+                const [year, week] = weekDate.split('-W');
+                url = `/export_weekly_report/${year}/${week}`;
+                break;
+            case 'monthly':
+                const monthDate = document.getElementById('exportMonth').value;
+                const [year, month] = monthDate.split('-');
+                url = `/export_monthly_report/${year}/${month}`;
+                break;
+        }
+        
+        if (url) {
+            window.location.href = url;
+            document.getElementById('exportDialog').style.display = 'none';
+        }
+    }
+
+    function showDateRangeDialog() {
+        const dialog = document.getElementById('dateRangeDialog');
+        dialog.style.display = 'block';
+        
+        // 初始化日期选择器
+        flatpickr("#startDate", {
+            dateFormat: "Y-m-d",
+            defaultDate: "today"
+        });
+        
+        flatpickr("#endDate", {
+            dateFormat: "Y-m-d",
+            defaultDate: "today"
+        });
+    }
+
+    function closeDateRangeDialog() {
+        const dialog = document.getElementById('dateRangeDialog');
+        dialog.style.display = 'none';
+    }
+
+    function exportDateRange() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        if (startDate && endDate) {
+            window.location.href = `/export_date_range/${startDate}/${endDate}`;
+            closeDateRangeDialog();
+        }
+    }
+
+    // 点击框外关闭弹窗
+    document.addEventListener('DOMContentLoaded', function() {
+        const dialog = document.getElementById('dateRangeDialog');
+        dialog.onclick = function(event) {
+            if (event.target === dialog) {
+                closeDateRangeDialog();
+            }
+        };
+    });
+    </script>
+</body>
+</html> 

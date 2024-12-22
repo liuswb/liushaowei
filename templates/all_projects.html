@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>全部项目 - 日常工作辅助系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <h1>全部项目</h1>
+            <a href="{{ url_for('index') }}" class="back-btn">返回主页</a>
+        </div>
+
+        <div class="projects-list">
+            <div class="project-filters">
+                <select id="statusFilter" onchange="filterProjects()">
+                    <option value="all">所有状态</option>
+                    <option value="active">进行中</option>
+                    <option value="recent_inactive">维保中</option>
+                    <option value="long_inactive">合同到期退网</option>
+                    <option value="completed">已完成</option>
+                </select>
+            </div>
+
+            <table class="projects-table">
+                <thead>
+                    <tr>
+                        <th>项目ID</th>
+                        <th>客户名称</th>
+                        <th>项目环节</th>
+                        <th class="status-column">当前状态</th>
+                        <th>创建时间</th>
+                        <th>最后更新</th>
+                        <th>项目状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr data-status="{{ 'completed' if not project.is_active else project.state }}">
+                        <td>
+                            <a href="{{ url_for('project_history', project_id=project.id) }}" class="project-id-link">
+                                {{ project.id }}
+                            </a>
+                        </td>
+                        <td>{{ project.client_name }}</td>
+                        <td>{{ project.stage }}</td>
+                        <td class="status-column">{{ project.status }}</td>
+                        <td>{{ project.created_at|datetime }}</td>
+                        <td>{{ project.last_updated|datetime }}</td>
+                        <td>
+                            {% if project.is_active %}
+                                {% if project.state == 'active' %}
+                                    <span class="status-badge active">进行中</span>
+                                {% elif project.state == 'recent_inactive' %}
+                                    <span class="status-badge maintenance">维保中</span>
+                                {% else %}
+                                    <span class="status-badge expired">合同到期退网</span>
+                                {% endif %}
+                            {% else %}
+                                <div class="reactivate-container">
+                                    <span class="status-badge completed">已完成</span>
+                                    <div class="reactivate-controls">
+                                        <select class="state-select">
+                                            <option value="active">进行中</option>
+                                            <option value="recent_inactive">维保中</option>
+                                        </select>
+                                        <button onclick="reactivateProject('{{ project.id }}', this)" class="reactivate-btn">重新激活</button>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    function filterProjects() {
+        const status = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.projects-table tbody tr');
+        
+        rows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function reactivateProject(projectId, button) {
+        const state = button.previousElementSibling.value;
+        fetch(`/reactivate_project/${projectId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ state: state })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('重新激活失败，请重试');
+            }
+        });
+    }
+    </script>
+</body>
+</html> 
